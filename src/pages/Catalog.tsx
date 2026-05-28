@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import PropertyCard from "../components/PropertyCard";
 import type { Property } from "../types";

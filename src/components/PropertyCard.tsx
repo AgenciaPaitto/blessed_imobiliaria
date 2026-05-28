@@ -5,7 +5,7 @@ import { formatCurrency, formatPropertyId } from "../utils";
 import { motion } from "motion/react";
 import { useFavorites } from "../hooks/useFavorites";
 
-export default function PropertyCard({ property, index = 0, isAdmin = false, onDelete, onEdit }: { property: Property, index?: number, isAdmin?: boolean, onDelete?: (id: number) => void, onEdit?: (property: Property) => void }) {
+export default function PropertyCard({ property, index = 0, isAdmin = false, onDelete, onEdit }: { key?: any, property: Property, index?: number, isAdmin?: boolean, onDelete?: (id: number) => void, onEdit?: (property: Property) => void }) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const isFav = isFavorite(property.id);
 
