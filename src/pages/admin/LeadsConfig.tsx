@@ -218,18 +218,23 @@ export default function LeadsConfig() {
         <div className="flex gap-6 overflow-x-auto pb-6 -mx-6 px-6 scrollbar-thin select-none">
           {columns.map(col => {
             const columnLeads = leads.filter(l => l.status === col);
-            const isOver = draggedOverCol === col;
+            const borderClass = isOver 
+              ? "border-blue-500 shadow-[0_0_15px_rgba(197,159,61,0.25)] scale-[1.01]" 
+              : col === 'qualificado' 
+                ? "border-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.05)]" 
+                : col === 'desqualificado' 
+                  ? "border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.05)]" 
+                  : col === 'finalizado' 
+                    ? "border-blue-600/60 shadow-[0_0_10px_rgba(197,159,61,0.05)]" 
+                    : "border-slate-800";
+
             return (
               <div 
                 key={col} 
                 onDragOver={handleDragOver}
                 onDragEnter={(e) => handleDragEnter(e, col)}
                 onDrop={(e) => handleDrop(e, col)}
-                className={`w-80 flex-shrink-0 flex flex-col bg-slate-900 rounded-2xl border p-4 transition-all duration-200 ${
-                  isOver 
-                    ? "border-blue-500 shadow-[0_0_15px_rgba(197,159,61,0.25)] scale-[1.01]" 
-                    : "border-slate-800"
-                }`}
+                className={`w-80 flex-shrink-0 flex flex-col bg-slate-900 rounded-2xl border p-4 transition-all duration-200 ${borderClass}`}
               >
                 {/* Column Header */}
                 <div className="flex justify-between items-center mb-4">
