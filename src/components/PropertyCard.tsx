@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
-import { Bed, Bath, Square, MapPin, PlayCircle, Heart, Trash2 } from "lucide-react";
+import { Bed, Bath, Square, MapPin, PlayCircle, Heart, Trash2, Edit } from "lucide-react";
 import { type Property } from "../types";
 import { formatCurrency, formatPropertyId } from "../utils";
 import { motion } from "motion/react";
 import { useFavorites } from "../hooks/useFavorites";
 
-export default function PropertyCard({ property, index = 0, isAdmin = false, onDelete }: { property: Property, index?: number, isAdmin?: boolean, onDelete?: (id: number) => void }) {
+export default function PropertyCard({ property, index = 0, isAdmin = false, onDelete, onEdit }: { property: Property, index?: number, isAdmin?: boolean, onDelete?: (id: number) => void, onEdit?: (property: Property) => void }) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const isFav = isFavorite(property.id);
 
@@ -96,19 +96,34 @@ export default function PropertyCard({ property, index = 0, isAdmin = false, onD
               <span>{property.area} m²</span>
             </div>
           </div>
-          {onDelete && (
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onDelete(property.id);
-              }}
-              className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded transition cursor-pointer"
-              title="Excluir Imóvel"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          )}
+          <div className="flex items-center gap-1">
+            {onEdit && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onEdit(property);
+                }}
+                className="text-blue-600 hover:text-blue-800 hover:bg-blue-50/50 p-1.5 rounded transition cursor-pointer"
+                title="Editar Imóvel"
+              >
+                <Edit className="w-4 h-4" />
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onDelete(property.id);
+                }}
+                className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded transition cursor-pointer"
+                title="Excluir Imóvel"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Search, Table, LayoutGrid } from "lucide-react";
+import { Plus, Trash2, Search, Table, LayoutGrid, Edit } from "lucide-react";
 import type { Property } from "../../types";
 import { formatCurrency, formatPropertyId } from "../../utils";
 import PropertyCard from "../../components/PropertyCard";
@@ -8,6 +8,7 @@ export default function PropertiesConfig() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<'table' | 'cards'>(() => {
     const saved = localStorage.getItem("blessed_properties_view_mode");
@@ -40,6 +41,16 @@ export default function PropertiesConfig() {
     }
   };
 
+  const handleEdit = (property: Property) => {
+    setEditingProperty(property);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setEditingProperty(null);
+    setIsModalOpen(false);
+  };
+
   const handleAddSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -52,15 +63,21 @@ export default function PropertiesConfig() {
       bedrooms: Number(data.bedrooms),
       bathrooms: Number(data.bathrooms),
       area: Number(data.area),
-      featured: data.featured === 'on'
+      featured: data.featured === 'on',
+      city: String(data.city),
+      state: String(data.state)
     };
 
-    fetch('/api/properties', {
-      method: 'POST',
+    const url = editingProperty ? `/api/properties/${editingProperty.id}` : '/api/properties';
+    const method = editingProperty ? 'PUT' : 'POST';
+
+    fetch(url, {
+      method: method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     }).then(() => {
       setIsModalOpen(false);
+      setEditingProperty(null);
       loadProperties();
     });
   };
@@ -87,7 +104,10 @@ export default function PropertiesConfig() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold">Gestão de Imóveis</h1>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setEditingProperty(null);
+            setIsModalOpen(true);
+          }}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
@@ -151,6 +171,7 @@ export default function PropertiesConfig() {
                 property={p} 
                 isAdmin={true} 
                 onDelete={handleDelete}
+                onEdit={handleEdit}
               />
             ))
           )}
@@ -189,9 +210,22 @@ export default function PropertiesConfig() {
                       </td>
                       <td className="p-4 text-sm">{formatCurrency(p.price)}</td>
                       <td className="p-4 text-right">
-                        <button onClick={() => handleDelete(p.id)} className="text-red-500 hover:bg-red-50 p-2 rounded transition cursor-pointer">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center justify-end gap-1">
+                          <button 
+                            onClick={() => handleEdit(p)} 
+                            className="text-blue-600 hover:bg-blue-50 p-2 rounded transition cursor-pointer"
+                            title="Editar Imóvel"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(p.id)} 
+                            className="text-red-500 hover:bg-red-50 p-2 rounded transition cursor-pointer"
+                            title="Excluir Imóvel"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -202,32 +236,32 @@ export default function PropertiesConfig() {
         </div>
       )}
 
-      {/* Add Modal */}
+      {/* Add/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center sticky top-0 bg-white">
-              <h2 className="text-xl font-bold">Adicionar Imóvel</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-900">&times;</button>
+              <h2 className="text-xl font-bold">{editingProperty ? "Editar Imóvel" : "Adicionar Imóvel"}</h2>
+              <button onClick={handleCloseModal} className="text-gray-400 hover:text-gray-900">&times;</button>
             </div>
             
-            <form onSubmit={handleAddSubmit} className="p-6 space-y-4">
+            <form key={editingProperty?.id || 'new'} onSubmit={handleAddSubmit} className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="block text-sm font-medium mb-1">Título</label>
-                  <input required name="title" className="w-full border rounded p-2" />
+                  <input required name="title" defaultValue={editingProperty?.title || ''} className="w-full border rounded p-2" />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-sm font-medium mb-1">Descrição</label>
-                  <textarea required name="description" rows={3} className="w-full border rounded p-2"></textarea>
+                  <textarea required name="description" rows={3} defaultValue={editingProperty?.description || ''} className="w-full border rounded p-2"></textarea>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Preço (R$)</label>
-                  <input required type="number" step="0.01" name="price" className="w-full border rounded p-2" />
+                  <input required type="number" step="0.01" name="price" defaultValue={editingProperty?.price || ''} className="w-full border rounded p-2" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Tipo</label>
-                  <select name="type" className="w-full border rounded p-2 bg-white">
+                  <select name="type" defaultValue={editingProperty?.type || 'apartamento'} className="w-full border rounded p-2 bg-white">
                     <option value="apartamento">Apartamento</option>
                     <option value="casa">Casa</option>
                     <option value="terreno">Terreno</option>
@@ -235,38 +269,46 @@ export default function PropertiesConfig() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Finalidade</label>
-                  <select name="status" className="w-full border rounded p-2 bg-white">
+                  <select name="status" defaultValue={editingProperty?.status || 'venda'} className="w-full border rounded p-2 bg-white">
                     <option value="venda">Venda</option>
                     <option value="locacao">Locação</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Quartos</label>
-                  <input required type="number" name="bedrooms" defaultValue={1} className="w-full border rounded p-2" />
+                  <input required type="number" name="bedrooms" defaultValue={editingProperty?.bedrooms ?? 1} className="w-full border rounded p-2" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Banheiros</label>
-                  <input required type="number" name="bathrooms" defaultValue={1} className="w-full border rounded p-2" />
+                  <input required type="number" name="bathrooms" defaultValue={editingProperty?.bathrooms ?? 1} className="w-full border rounded p-2" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Área (m²)</label>
-                  <input required type="number" name="area" defaultValue={50} className="w-full border rounded p-2" />
+                  <input required type="number" name="area" defaultValue={editingProperty?.area ?? 50} className="w-full border rounded p-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Cidade</label>
+                  <input required name="city" defaultValue={editingProperty?.city || ''} placeholder="Ex: Rio de Janeiro" className="w-full border rounded p-2" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Estado (UF)</label>
+                  <input required name="state" defaultValue={editingProperty?.state || ''} placeholder="Ex: RJ" className="w-full border rounded p-2" />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-sm font-medium mb-1">URL da Imagem</label>
-                  <input name="image" placeholder="https://..." className="w-full border rounded p-2" />
+                  <input name="image" defaultValue={editingProperty?.image || ''} placeholder="https://..." className="w-full border rounded p-2" />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-sm font-medium mb-1">URL do Tour Virtual (Opcional)</label>
-                  <input name="virtualTourUrl" placeholder="https://my.matterport.com/show/?m=..." className="w-full border rounded p-2" />
+                  <input name="virtualTourUrl" defaultValue={editingProperty?.virtualTourUrl || ''} placeholder="https://my.matterport.com/show/?m=..." className="w-full border rounded p-2" />
                 </div>
                 <div className="col-span-2 flex items-center gap-2 mt-2">
-                  <input type="checkbox" id="featured" name="featured" className="w-4 h-4 rounded border-gray-300" />
+                  <input type="checkbox" id="featured" name="featured" defaultChecked={editingProperty?.featured || false} className="w-4 h-4 rounded border-gray-300" />
                   <label htmlFor="featured" className="text-sm font-medium">Destacar imóvel na página inicial</label>
                 </div>
               </div>
               <div className="pt-4 border-t flex justify-end gap-3 mt-6">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">Cancelar</button>
+                <button type="button" onClick={handleCloseModal} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200">Cancelar</button>
                 <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Salvar Imóvel</button>
               </div>
             </form>

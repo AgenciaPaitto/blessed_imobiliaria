@@ -139,7 +139,7 @@ async function startServer() {
   });
 
   app.post("/api/properties", async (req, res) => {
-    const { title, description, price, type, status, bedrooms, bathrooms, area, image, virtualTourUrl, galleryImages, featured } = req.body;
+    const { title, description, price, type, status, bedrooms, bathrooms, area, image, virtualTourUrl, galleryImages, featured, city, state } = req.body;
     try {
       let parsedGallery = null;
       if (galleryImages) {
@@ -162,13 +162,51 @@ async function startServer() {
         image,
         galleryimages: parsedGallery,
         virtualtoururl: virtualTourUrl,
-        featured: !!featured
+        featured: !!featured,
+        city,
+        state
       }]).select("id");
       
       if (error) throw error;
       if (!data || data.length === 0) throw new Error("Inserção falhou no Supabase");
       
       res.status(201).json({ id: data[0].id });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.put("/api/properties/:id", async (req, res) => {
+    const { title, description, price, type, status, bedrooms, bathrooms, area, image, virtualTourUrl, galleryImages, featured, city, state } = req.body;
+    try {
+      let parsedGallery = null;
+      if (galleryImages) {
+        try {
+          parsedGallery = typeof galleryImages === 'string' ? JSON.parse(galleryImages) : galleryImages;
+        } catch (e) {
+          parsedGallery = [];
+        }
+      }
+      
+      const { error } = await supabase.from("properties").update({
+        title,
+        description,
+        price: Number(price),
+        type,
+        status,
+        bedrooms: Number(bedrooms),
+        bathrooms: Number(bathrooms),
+        area: Number(area),
+        image,
+        galleryimages: parsedGallery,
+        virtualtoururl: virtualTourUrl,
+        featured: !!featured,
+        city,
+        state
+      }).eq("id", Number(req.params.id));
+      
+      if (error) throw error;
+      res.json({ success: true });
     } catch (e: any) {
       res.status(500).json({ error: e.message });
     }
