@@ -44,9 +44,15 @@ export default function PropertyDetails() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...formData, propertyId: Number(id) })
-    }).then(() => {
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("Erro ao salvar mensagem.");
       setSubmitted(true);
       setFormData({ name: '', email: '', phone: '', message: '' });
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Não foi possível enviar a mensagem no momento. Tente novamente mais tarde.");
     });
   };
 

@@ -106,10 +106,11 @@ async function startServer() {
       
       if (error) throw error;
       
-      // Map galleryImages array back to string for frontend backwards compatibility
+      // Map database columns to frontend camelCase
       const formatted = (data || []).map(item => ({
         ...item,
-        galleryImages: typeof item.galleryImages === 'string' ? item.galleryImages : JSON.stringify(item.galleryImages || [])
+        galleryImages: typeof item.galleryimages === 'string' ? item.galleryimages : JSON.stringify(item.galleryimages || []),
+        virtualTourUrl: item.virtualtoururl
       }));
       
       res.json(formatted);
@@ -127,7 +128,8 @@ async function startServer() {
       
       const formatted = {
         ...data,
-        galleryImages: typeof data.galleryImages === 'string' ? data.galleryImages : JSON.stringify(data.galleryImages || [])
+        galleryImages: typeof data.galleryimages === 'string' ? data.galleryimages : JSON.stringify(data.galleryimages || []),
+        virtualTourUrl: data.virtualtoururl
       };
       
       res.json(formatted);
@@ -158,8 +160,8 @@ async function startServer() {
         bathrooms: Number(bathrooms),
         area: Number(area),
         image,
-        galleryImages: parsedGallery,
-        virtualTourUrl,
+        galleryimages: parsedGallery,
+        virtualtoururl: virtualTourUrl,
         featured: !!featured
       }]).select("id");
       
@@ -187,7 +189,12 @@ async function startServer() {
     try {
       const { data, error } = await supabase.from("leads").select("*").order("created_at", { ascending: false });
       if (error) throw error;
-      res.json(data);
+      
+      const formatted = (data || []).map(item => ({
+        ...item,
+        propertyId: item.propertyid
+      }));
+      res.json(formatted);
     } catch (e: any) {
       res.status(500).json({ error: e.message });
     }
@@ -201,7 +208,7 @@ async function startServer() {
         email,
         phone,
         message,
-        propertyId: propertyId ? Number(propertyId) : null
+        propertyid: propertyId ? Number(propertyId) : null
       }]).select("id");
       
       if (error) throw error;
