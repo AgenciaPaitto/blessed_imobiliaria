@@ -76,8 +76,8 @@ export default function PropertyCard({ property, index = 0, isAdmin = false, onD
           {property.description}
         </p>
         
-        <div className="flex items-center justify-between font-semibold text-xl text-blue-600 mb-4">
-          {formatCurrency(property.price)}
+        <div className="flex items-baseline gap-1 font-semibold text-xl text-blue-600 mb-4">
+          <span>{formatCurrency(property.price)}</span>
           {property.status === 'locacao' && <span className="text-sm text-gray-500 font-normal">/mês</span>}
         </div>
         

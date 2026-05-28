@@ -132,10 +132,10 @@ export default function PropertyDetails() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-blue-600">
-                    {formatCurrency(property.price)}
+                  <div className="flex items-baseline justify-end gap-1 text-3xl font-bold text-blue-600">
+                    <span>{formatCurrency(property.price)}</span>
+                    {property.status === 'locacao' && <span className="text-base text-gray-500 font-normal">/mês</span>}
                   </div>
-                  {property.status === 'locacao' && <span className="text-gray-500">/ mês</span>}
                 </div>
               </div>
 
