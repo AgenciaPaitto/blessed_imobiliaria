@@ -136,21 +136,7 @@ export default function Login() {
           </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-white/10 text-center">
-          <p className="text-slate-400 text-xs mb-3">Credenciais de Acesso para Teste:</p>
-          <div className="inline-grid grid-cols-2 gap-4 text-left max-w-sm mx-auto text-xs bg-slate-950/30 p-3 rounded-lg border border-white/5">
-            <div>
-              <p className="font-semibold text-blue-400">Administrador:</p>
-              <p className="text-slate-300 select-all">admin</p>
-              <p className="text-slate-500">Senha: <span className="text-slate-300 select-all">admin123</span></p>
-            </div>
-            <div>
-              <p className="font-semibold text-emerald-400">Corretor:</p>
-              <p className="text-slate-300 select-all">corretor</p>
-              <p className="text-slate-500">Senha: <span className="text-slate-300 select-all">corretor123</span></p>
-            </div>
-          </div>
-        </div>
+
 
         <div className="mt-6 text-center">
           <a
