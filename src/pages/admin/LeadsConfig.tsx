@@ -7,7 +7,14 @@ import { Table, Kanban, Plus, Trash2, Mail, Phone, Calendar, User } from "lucide
 export default function LeadsConfig() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'table' | 'kanban'>('table');
+  const [viewMode, setViewMode] = useState<'table' | 'kanban'>(() => {
+    const saved = localStorage.getItem("blessed_crm_view_mode");
+    return (saved === 'table' || saved === 'kanban') ? saved : 'table';
+  });
+  const handleViewModeChange = (mode: 'table' | 'kanban') => {
+    setViewMode(mode);
+    localStorage.setItem("blessed_crm_view_mode", mode);
+  };
   const [columns, setColumns] = useState<string[]>(() => {
     const saved = localStorage.getItem("blessed_crm_columns");
     return saved ? JSON.parse(saved) : ["novo", "em_atendimento", "concluido"];
@@ -120,7 +127,7 @@ export default function LeadsConfig() {
           {/* Toggle buttons */}
           <div className="bg-gray-100 p-1 rounded-lg flex items-center border border-gray-200">
             <button
-              onClick={() => setViewMode('table')}
+              onClick={() => handleViewModeChange('table')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md text-sm font-semibold transition-all ${
                 viewMode === 'table' 
                   ? "bg-white text-gray-900 shadow-sm border border-gray-200/10" 
@@ -131,7 +138,7 @@ export default function LeadsConfig() {
               Tabela
             </button>
             <button
-              onClick={() => setViewMode('kanban')}
+              onClick={() => handleViewModeChange('kanban')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-md text-sm font-semibold transition-all ${
                 viewMode === 'kanban' 
                   ? "bg-white text-gray-900 shadow-sm border border-gray-200/10" 
