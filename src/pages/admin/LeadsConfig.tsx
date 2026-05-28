@@ -218,6 +218,7 @@ export default function LeadsConfig() {
         <div className="flex gap-6 overflow-x-auto pb-6 -mx-6 px-6 scrollbar-thin select-none">
           {columns.map(col => {
             const columnLeads = leads.filter(l => l.status === col);
+            const isOver = draggedOverCol === col;
             const borderClass = isOver 
               ? "border-blue-500 shadow-[0_0_15px_rgba(197,159,61,0.25)] scale-[1.01]" 
               : col === 'qualificado' 
