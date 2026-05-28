@@ -2,11 +2,21 @@ import { useState, useEffect } from "react";
 import type { Lead } from "../../types";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Table, Kanban, Plus, Trash2, Mail, Phone, Calendar, User } from "lucide-react";
+import { Table, Kanban, Plus, Trash2, Mail, Phone, Calendar, User, MessageCircle } from "lucide-react";
 
 export default function LeadsConfig() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const getWhatsAppUrl = (phone: string, name: string) => {
+    const cleaned = phone.replace(/\D/g, "");
+    const withCountryCode = cleaned.startsWith("55") 
+      ? cleaned 
+      : (cleaned.length >= 10 ? `55${cleaned}` : cleaned);
+    
+    const message = `Olá ${name}, sou o corretor da Blessed Imobiliária. Recebi seu contato através do nosso site de imóveis. Como posso te ajudar?`;
+    return `https://wa.me/${withCountryCode}?text=${encodeURIComponent(message)}`;
+  };
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>(() => {
     const saved = localStorage.getItem("blessed_crm_view_mode");
     return (saved === 'table' || saved === 'kanban') ? saved : 'table';
@@ -252,6 +262,18 @@ export default function LeadsConfig() {
                             <a href={`tel:${lead.phone}`} className="hover:text-blue-400 hover:underline">{lead.phone}</a>
                           </div>
                         </div>
+
+                        {lead.phone && (
+                          <a 
+                            href={getWhatsAppUrl(lead.phone, lead.name)} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold py-2 px-4 rounded-lg shadow-sm transition active:translate-y-[1px] select-none cursor-pointer"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5 fill-white" />
+                            WhatsApp
+                          </a>
+                        )}
                       </div>
                     ))
                   )}
@@ -288,7 +310,20 @@ export default function LeadsConfig() {
                     </td>
                     <td className="p-4 text-sm">
                       <div>{lead.email}</div>
-                      <div className="text-gray-500">{lead.phone}</div>
+                      <div className="flex items-center gap-1.5 mt-1 text-gray-500">
+                        <span>{lead.phone}</span>
+                        {lead.phone && (
+                          <a 
+                            href={getWhatsAppUrl(lead.phone, lead.name)} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="text-green-500 hover:text-green-400 transition"
+                            title="Conversar no WhatsApp"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5 fill-green-500/10" />
+                          </a>
+                        )}
+                      </div>
                     </td>
                     <td className="p-4 text-sm">
                       {lead.propertyId ? `#${lead.propertyId}` : '-'}
