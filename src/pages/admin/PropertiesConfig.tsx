@@ -69,7 +69,7 @@ export default function PropertiesConfig() {
     const query = searchQuery.toLowerCase().trim();
     if (!query) return true;
     
-    const formattedId = `ref-${String(p.id).padStart(4, '0')}`;
+    const formattedId = String(p.id).padStart(4, '0');
     const rawId = String(p.id);
     
     return (

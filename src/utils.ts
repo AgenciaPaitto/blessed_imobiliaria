@@ -14,6 +14,6 @@ export const formatCurrency = (value: number) => {
 
 export const formatPropertyId = (id: number | string | null | undefined) => {
   if (id === null || id === undefined) return "";
-  return `REF-${String(id).padStart(4, '0')}`;
+  return String(id).padStart(4, '0');
 };
 
