@@ -16,38 +16,38 @@ export default function Login() {
   // Redirect path after login
   const from = (location.state as any)?.from?.pathname || "/admin";
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccess("");
     setIsLoading(true);
 
-    // Simulate network delay
-    setTimeout(() => {
-      const normalizedEmail = email.trim().toLowerCase();
-      
-      // Default credentials
-      const isAdmin = (normalizedEmail === "admin@blessed.com" || normalizedEmail === "admin") && password === "admin123";
-      const isCorretor = (normalizedEmail === "corretor@blessed.com" || normalizedEmail === "corretor") && password === "corretor123";
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      if (isAdmin || isCorretor) {
-        const user = {
-          email: normalizedEmail.includes("@") ? normalizedEmail : `${normalizedEmail}@blessed.com`,
-          name: isAdmin ? "Administrador" : "Corretor Blessed",
-          role: isAdmin ? "admin" : "corretor"
-        };
-        
-        localStorage.setItem("blessed_auth_user", JSON.stringify(user));
-        setSuccess("Login realizado com sucesso! Redirecionando...");
-        
-        setTimeout(() => {
-          navigate(from, { replace: true });
-        }, 1000);
-      } else {
-        setError("E-mail/Usuário ou senha incorretos.");
-        setIsLoading(false);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Erro ao realizar o login.");
       }
-    }, 800);
+
+      localStorage.setItem("blessed_auth_user", JSON.stringify(data));
+      setSuccess("Login realizado com sucesso! Redirecionando...");
+      
+      setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 1000);
+    } catch (e: any) {
+      setError(e.message || "E-mail/Usuário ou senha incorretos.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

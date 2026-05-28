@@ -25,7 +25,44 @@ async function startServer() {
   app.use(express.json());
 
   // --- API Routes ---
-  
+
+  // Authentication
+  app.post("/api/auth/login", async (req, res) => {
+    const { email, password } = req.body;
+    try {
+      if (!email || !password) {
+        return res.status(400).json({ error: "E-mail/usuário e senha são obrigatórios." });
+      }
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const lookupEmail = normalizedEmail.includes("@") ? normalizedEmail : `${normalizedEmail}@blessed.com`;
+
+      const { data: user, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", lookupEmail)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Erro na consulta do Supabase:", error);
+        throw error;
+      }
+
+      if (!user || user.password !== password) {
+        return res.status(401).json({ error: "E-mail/usuário ou senha incorretos." });
+      }
+
+      res.json({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // Properties
   app.get("/api/properties", async (req, res) => {
     try {
