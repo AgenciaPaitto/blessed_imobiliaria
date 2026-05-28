@@ -95,20 +95,22 @@ export default function LeadsConfig() {
   };
 
   const handleDeleteList = (colToDelete: string) => {
-    if (["novo", "em_atendimento", "concluido"].includes(colToDelete)) {
-      alert("As listas padrão ('Novo', 'Em Atendimento' e 'Concluído') não podem ser excluídas.");
+    if (columns.length <= 3) {
+      alert("Não é possível excluir esta lista. O painel deve manter no mínimo 3 listas ativas.");
       return;
     }
-    if (confirm(`Tem certeza que deseja excluir a lista "${formatColumnName(colToDelete)}"? Leads nessa lista não serão excluídos, mas voltarão para o status padrão "Novo".`)) {
-      const updatedCols = columns.filter(c => c !== colToDelete);
-      saveColumns(updatedCols);
+    const remainingCols = columns.filter(c => c !== colToDelete);
+    const fallbackCol = remainingCols[0];
+
+    if (confirm(`Tem certeza que deseja excluir a lista "${formatColumnName(colToDelete)}"? Leads nessa lista não serão excluídos, mas serão movidos para a lista "${formatColumnName(fallbackCol)}".`)) {
+      saveColumns(remainingCols);
       
       const leadsToMove = leads.filter(l => l.status === colToDelete);
       Promise.all(leadsToMove.map(l => 
         fetch(`/api/leads/${l.id}/status`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'novo' })
+          body: JSON.stringify({ status: fallbackCol })
         })
       )).then(() => loadLeads());
     }
@@ -190,8 +192,8 @@ export default function LeadsConfig() {
                     </span>
                   </div>
                   
-                  {/* Delete button (custom columns only) */}
-                  {!["novo", "em_atendimento", "concluido"].includes(col) && (
+                  {/* Delete button (visible when there are more than 3 columns) */}
+                  {columns.length > 3 && (
                     <button 
                       onClick={() => handleDeleteList(col)}
                       className="text-gray-400 hover:text-red-500 transition p-1 rounded hover:bg-gray-850 cursor-pointer"
