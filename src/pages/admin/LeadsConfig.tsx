@@ -134,12 +134,12 @@ export default function LeadsConfig() {
           {columns.map(col => {
             const columnLeads = leads.filter(l => l.status === col);
             return (
-              <div key={col} className="w-80 flex-shrink-0 flex flex-col bg-gray-100/80 rounded-2xl border border-gray-200/60 p-4">
+              <div key={col} className="w-80 flex-shrink-0 flex flex-col bg-slate-900 rounded-2xl border border-slate-800 p-4">
                 {/* Column Header */}
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-gray-800 text-sm">{formatColumnName(col)}</h3>
-                    <span className="bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full font-bold">
+                    <h3 className="font-bold text-gray-100 text-sm">{formatColumnName(col)}</h3>
+                    <span className="bg-slate-950 text-slate-300 text-xs px-2.5 py-0.5 rounded-full font-bold border border-slate-800/80">
                       {columnLeads.length}
                     </span>
                   </div>
@@ -148,7 +148,7 @@ export default function LeadsConfig() {
                   {!["novo", "em_atendimento", "concluido"].includes(col) && (
                     <button 
                       onClick={() => handleDeleteList(col)}
-                      className="text-gray-400 hover:text-red-500 transition p-1 rounded hover:bg-gray-200 cursor-pointer"
+                      className="text-gray-400 hover:text-red-500 transition p-1 rounded hover:bg-gray-800 cursor-pointer"
                       title="Excluir lista"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -159,53 +159,53 @@ export default function LeadsConfig() {
                 {/* Leads List */}
                 <div className="flex-1 flex flex-col gap-3 overflow-y-auto max-h-[60vh] min-h-[300px] pr-1">
                   {loading ? (
-                    <div className="text-center py-8 text-gray-400 text-xs">Carregando...</div>
+                    <div className="text-center py-8 text-gray-400 text-xs animate-pulse">Carregando...</div>
                   ) : columnLeads.length === 0 ? (
-                    <div className="border border-dashed border-gray-300 rounded-xl p-6 text-center text-gray-400 text-xs flex flex-col items-center justify-center min-h-[120px] bg-gray-50/50">
+                    <div className="border border-dashed border-slate-800 rounded-xl p-6 text-center text-slate-400 text-xs flex flex-col items-center justify-center min-h-[120px] bg-slate-950/20">
                       Nenhum lead nesta etapa.
                     </div>
                   ) : (
                     columnLeads.map(lead => (
-                      <div key={lead.id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition flex flex-col gap-3">
+                      <div key={lead.id} className="bg-slate-950 p-4 rounded-xl border border-slate-800/80 shadow-sm hover:shadow-md transition flex flex-col gap-3">
                         <div>
                           <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-[10px] text-gray-400 font-medium flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
+                            <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
+                              <Calendar className="w-3 h-3 text-slate-400" />
                               {format(new Date(lead.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                             </span>
                             {lead.propertyId && (
-                              <span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-1.5 py-0.5 rounded border border-blue-100">
+                              <span className="bg-blue-50 text-blue-750 text-[10px] font-bold px-1.5 py-0.5 rounded border border-blue-200">
                                 Imóvel #{lead.propertyId}
                               </span>
                             )}
                           </div>
-                          <h4 className="font-bold text-gray-950 text-sm flex items-center gap-1.5">
-                            <User className="w-4 h-4 text-gray-400" />
+                          <h4 className="font-bold text-white text-sm flex items-center gap-1.5">
+                            <User className="w-4 h-4 text-slate-400" />
                             {lead.name}
                           </h4>
                         </div>
 
-                        <div className="bg-gray-50 p-2.5 rounded-lg border border-gray-150 text-xs text-gray-600 italic line-clamp-3" title={lead.message}>
+                        <div className="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800/40 text-xs text-slate-200 italic line-clamp-3" title={lead.message}>
                           "{lead.message}"
                         </div>
 
-                        <div className="text-xs text-gray-500 space-y-1 bg-slate-50/30 p-2 rounded-lg border border-slate-100">
+                        <div className="text-xs text-slate-300 space-y-1 bg-slate-900/30 p-2 rounded-lg border border-slate-800/40">
                           <div className="flex items-center gap-2 truncate">
-                            <Mail className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                            <a href={`mailto:${lead.email}`} className="hover:text-blue-500 hover:underline truncate">{lead.email}</a>
+                            <Mail className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                            <a href={`mailto:${lead.email}`} className="hover:text-blue-400 hover:underline truncate">{lead.email}</a>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Phone className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                            <a href={`tel:${lead.phone}`} className="hover:text-blue-500 hover:underline">{lead.phone}</a>
+                            <Phone className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                            <a href={`tel:${lead.phone}`} className="hover:text-blue-400 hover:underline">{lead.phone}</a>
                           </div>
                         </div>
 
-                        <div className="mt-1 pt-3 border-t border-gray-100 flex items-center gap-2">
-                          <span className="text-[10px] uppercase font-bold text-gray-400 whitespace-nowrap">Mover para:</span>
+                        <div className="mt-1 pt-3 border-t border-slate-800 flex items-center gap-2">
+                          <span className="text-[10px] uppercase font-bold text-slate-400 whitespace-nowrap">Mover para:</span>
                           <select 
                             value={lead.status}
                             onChange={(e) => handleStatusChange(lead.id, e.target.value)}
-                            className="text-xs rounded border border-gray-200 bg-gray-50 p-1.5 font-semibold text-gray-700 outline-none w-full cursor-pointer hover:border-gray-300"
+                            className="text-xs rounded border border-slate-800 bg-slate-900 p-1.5 font-semibold text-slate-200 outline-none w-full cursor-pointer hover:border-slate-700"
                           >
                             {columns.map(c => (
                               <option key={c} value={c}>{formatColumnName(c)}</option>
