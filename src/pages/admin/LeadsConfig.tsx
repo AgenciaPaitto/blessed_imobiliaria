@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import type { Lead, Property } from "../../types";
 import { formatPropertyId } from "../../utils";
 import { format } from "date-fns";
