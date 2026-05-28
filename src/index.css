@@ -1,0 +1,273 @@
+@import "tailwindcss";
+
+@theme {
+  /* Redefine standard blue to a premium luxury metallic gold color scale */
+  --color-blue-50: #fdfaf2;
+  --color-blue-100: #f7ecd3;
+  --color-blue-200: #eedbad;
+  --color-blue-300: #e2c17a;
+  --color-blue-400: #d4a34b;
+  --color-blue-500: #c58c2f;
+  --color-blue-600: #b5741b; /* base gold color */
+  --color-blue-700: #935916;
+  --color-blue-800: #754515;
+  --color-blue-900: #5e3713;
+  --color-blue-950: #341c08;
+}
+
+/* Global resets for a premium dark mode experience */
+html, body {
+  background-color: #07080d !important; /* nearly black background */
+  color: #d1d5db !important; /* light gray text for readibility */
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #07080d;
+}
+::-webkit-scrollbar-thumb {
+  background: #1c2030;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b5741b;
+}
+
+/* Layout overrides to force dark theme */
+.bg-white {
+  background-color: #11131c !important; /* dark slate container cards */
+  color: #f3f4f6 !important;
+}
+
+.bg-gray-50 {
+  background-color: #07080d !important; /* nearly black page background sections */
+}
+
+.bg-gray-100 {
+  background-color: #1c2030 !important;
+}
+
+.bg-gray-900 {
+  background-color: #050608 !important;
+}
+
+/* Border color overrides to integrate with dark theme */
+.border-gray-100, .border-gray-200, .border-gray-300 {
+  border-color: #1e2436 !important;
+}
+
+/* Text overrides for contrast */
+.text-gray-900, .text-slate-900 {
+  color: #f3f4f6 !important; /* white-ish text */
+}
+
+.text-gray-800 {
+  color: #e5e7eb !important;
+}
+
+.text-gray-700 {
+  color: #9ca3af !important;
+}
+
+.text-gray-600, .text-slate-600 {
+  color: #9ca3af !important;
+}
+
+.text-gray-500, .text-gray-400 {
+  color: #6b7280 !important;
+}
+
+/* Translucent bg utility overrides */
+.bg-white\/90 {
+  background-color: rgba(17, 19, 28, 0.85) !important;
+  color: #f3f4f6 !important;
+}
+
+.bg-white\/10 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.hover\:bg-white:hover {
+  background-color: #1c2030 !important;
+}
+
+/* Gold Gradient utilities and overrides */
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #f3e7c4 0%, #d4af37 35%, #b5891b 70%, #f3e7c4 100%) !important;
+  color: #07080d !important;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+}
+
+.bg-gold-gradient:hover {
+  background: linear-gradient(135deg, #f7ecd3 0%, #e0bd4d 35%, #c99c27 70%, #f7ecd3 100%) !important;
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Buttons that had bg-blue-600 will automatically use the luxury gold gradient */
+.bg-blue-600 {
+  background: linear-gradient(135deg, #e5c158 0%, #c59f3d 50%, #a67c1e 100%) !important;
+  color: #07080d !important;
+  font-weight: 600;
+  border: none !important;
+  transition: all 0.25s ease !important;
+}
+
+.bg-blue-600:hover {
+  background: linear-gradient(135deg, #eed077 0%, #d5b04c 50%, #b58c2d 100%) !important;
+  box-shadow: 0 0 15px rgba(197, 159, 61, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+.hover\:bg-blue-700:hover {
+  background: linear-gradient(135deg, #eed077 0%, #d5b04c 50%, #b58c2d 100%) !important;
+  color: #07080d !important;
+  transform: translateY(-1px);
+}
+
+/* Spinner colors to match gold */
+.border-b-2.border-blue-600 {
+  border-bottom-color: #d4af37 !important;
+}
+
+.border-blue-600 {
+  border-color: #d4af37 !important;
+}
+
+/* Text accents to gold */
+.text-blue-600, .text-blue-500, .text-blue-400 {
+  color: #dfba73 !important; /* Soft metallic gold */
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #f3e7c4 0%, #d4af37 50%, #a67c1e 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+.hover\:text-blue-600:hover {
+  color: #f7ecd3 !important;
+}
+
+/* Custom styles for Mortgage Calculator and other specific elements */
+.bg-blue-50 {
+  background-color: #171926 !important;
+  color: #dfba73 !important;
+  border: 1px solid rgba(223, 186, 115, 0.15) !important;
+}
+
+.border-blue-200 {
+  border-color: rgba(223, 186, 115, 0.3) !important;
+}
+
+.bg-blue-50.text-blue-600 {
+  background-color: #171926 !important;
+  color: #dfba73 !important;
+}
+
+/* Form Inputs, Selects & Textareas style for dark mode */
+input, select, textarea {
+  background-color: #141724 !important;
+  border: 1px solid #222b40 !important;
+  color: #f3f4f6 !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #c59f3d !important;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(197, 159, 61, 0.2) !important;
+}
+
+/* Header style for dark mode */
+header {
+  background-color: #07080d !important;
+  border-bottom: 1px solid #1a2033 !important;
+}
+
+header a, header button {
+  color: #d1d5db !important;
+}
+
+header a:hover {
+  color: #e5c158 !important;
+}
+
+/* Admin Sidebar specific adjustments */
+aside.bg-gray-900 {
+  background-color: #050608 !important;
+  border-right: 1px solid #1a2033;
+}
+
+aside a.bg-blue-600 {
+  background: linear-gradient(135deg, #e5c158 0%, #c59f3d 100%) !important;
+  color: #07080d !important;
+}
+
+aside a.bg-blue-600 svg, aside a.bg-blue-600 span {
+  color: #07080d !important;
+}
+
+/* WhatsApp button overrides - we keep it green but add some shadow */
+.bg-green-500 {
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+}
+
+.bg-green-500:hover {
+  background-color: #16a34a !important;
+  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Image hero and other brightness adjustment */
+.brightness-50 {
+  filter: brightness(0.25) contrast(1.1) !important;
+}
+
+.hero-brightness {
+  filter: brightness(0.8) blur(2px) contrast(1.02) !important;
+}
+
+/* Lead dynamic badges */
+span.bg-blue-600\/90 {
+  background: linear-gradient(135deg, #e5c158 0%, #c59f3d 100%) !important;
+  color: #07080d !important;
+}
+
+/* Correcting card title hover transition */
+.group:hover .group-hover\:text-blue-600 {
+  color: #f3e2a9 !important;
+}
+
+/* Printable PDF style resets - forces light theme for printing */
+.pdf-container,
+.pdf-container div,
+.pdf-container h1,
+.pdf-container h2,
+.pdf-container h3,
+.pdf-container span,
+.pdf-container p,
+.pdf-container svg {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  border-color: #e5e7eb !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+
+.pdf-container .text-blue-600,
+.pdf-container .text-blue-700 {
+  color: #c59f3d !important; /* Keep a nice gold print color */
+}
+
+.pdf-container .bg-blue-100 {
+  background-color: #fef9c3 !important; /* Light yellow/gold badge */
+  color: #854d0e !important;
+}
+

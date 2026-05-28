@@ -1,0 +1,6 @@
+{
+  "name": "Blessed Incorporadora e Imobiliária",
+  "description": "Website completo e painel administrativo CRM para imobiliária em Tangará da Serra, Mato Grosso.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
