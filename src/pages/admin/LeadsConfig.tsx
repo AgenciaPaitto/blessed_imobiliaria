@@ -1,20 +1,31 @@
 import { useState, useEffect } from "react";
-import type { Lead } from "../../types";
+import type { Lead, Property } from "../../types";
+import { formatPropertyId } from "../../utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Table, Kanban, Plus, Trash2, Mail, Phone, Calendar, User, MessageCircle } from "lucide-react";
 
 export default function LeadsConfig() {
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const getWhatsAppUrl = (phone: string, name: string) => {
+  const getWhatsAppUrl = (phone: string, name: string, propertyId?: number | null) => {
     const cleaned = phone.replace(/\D/g, "");
     const withCountryCode = cleaned.startsWith("55") 
       ? cleaned 
       : (cleaned.length >= 10 ? `55${cleaned}` : cleaned);
     
-    const message = `Olá ${name}, sou o corretor da Blessed Imobiliária. Recebi seu contato através do nosso site de imóveis. Como posso te ajudar?`;
+    const firstName = name.trim().split(" ")[0];
+    let message = `Olá ${firstName}, sou o corretor da Blessed Imobiliária. Recebi seu contato através de nosso site. Como posso te ajudar?`;
+    
+    if (propertyId) {
+      const property = properties.find(p => Number(p.id) === Number(propertyId));
+      if (property) {
+        message = `Olá ${firstName}, sou o corretor da Blessed Imobiliária. Vi que demonstrou interesse no imóvel "${property.title}" (Ref: ${formatPropertyId(propertyId)}) anunciado para ${property.status === 'venda' ? 'venda' : 'locação'}. Como posso te ajudar?`;
+      }
+    }
+    
     return `https://wa.me/${withCountryCode}?text=${encodeURIComponent(message)}`;
   };
   const [viewMode, setViewMode] = useState<'table' | 'kanban'>(() => {
@@ -67,8 +78,17 @@ export default function LeadsConfig() {
       });
   };
 
+  const loadProperties = () => {
+    fetch('/api/properties')
+      .then(res => res.json())
+      .then(data => {
+        setProperties(data);
+      });
+  };
+
   useEffect(() => {
     loadLeads();
+    loadProperties();
   }, []);
 
   const saveColumns = (newCols: string[]) => {
@@ -238,7 +258,7 @@ export default function LeadsConfig() {
                             </span>
                             {lead.propertyId && (
                               <span className="bg-blue-50 text-blue-750 text-[10px] font-bold px-1.5 py-0.5 rounded border border-blue-200">
-                                Imóvel #{lead.propertyId}
+                                Imóvel {formatPropertyId(lead.propertyId)}
                               </span>
                             )}
                           </div>
@@ -265,7 +285,7 @@ export default function LeadsConfig() {
 
                         {lead.phone && (
                           <a 
-                            href={getWhatsAppUrl(lead.phone, lead.name)} 
+                            href={getWhatsAppUrl(lead.phone, lead.name, lead.propertyId)} 
                             target="_blank" 
                             rel="noreferrer"
                             className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold py-2 px-4 rounded-lg shadow-sm transition active:translate-y-[1px] select-none cursor-pointer"
@@ -314,7 +334,7 @@ export default function LeadsConfig() {
                         <span>{lead.phone}</span>
                         {lead.phone && (
                           <a 
-                            href={getWhatsAppUrl(lead.phone, lead.name)} 
+                            href={getWhatsAppUrl(lead.phone, lead.name, lead.propertyId)} 
                             target="_blank" 
                             rel="noreferrer"
                             className="text-green-500 hover:text-green-400 transition"
@@ -326,7 +346,7 @@ export default function LeadsConfig() {
                       </div>
                     </td>
                     <td className="p-4 text-sm">
-                      {lead.propertyId ? `#${lead.propertyId}` : '-'}
+                      {lead.propertyId ? formatPropertyId(lead.propertyId) : '-'}
                     </td>
                     <td className="p-4">
                       <select 

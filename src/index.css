@@ -97,6 +97,31 @@ html, body {
   background-color: #1c2030 !important;
 }
 
+.bg-white:hover {
+  background-color: #11131c !important;
+}
+
+.hover\:bg-gray-50:hover {
+  background-color: #141724 !important;
+}
+
+.hover\:bg-gray-100:hover {
+  background-color: #1c2030 !important;
+}
+
+.hover\:bg-red-50:hover {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+.hover\:bg-blue-50:hover {
+  background-color: rgba(223, 186, 115, 0.15) !important;
+}
+
+.hover\:bg-green-100:hover {
+  background-color: rgba(34, 197, 94, 0.15) !important;
+}
+
+
 /* Gold Gradient utilities and overrides */
 .bg-gold-gradient {
   background: linear-gradient(135deg, #f3e7c4 0%, #d4af37 35%, #b5891b 70%, #f3e7c4 100%) !important;

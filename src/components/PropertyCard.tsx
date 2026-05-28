@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
-import { Bed, Bath, Square, MapPin, PlayCircle, Heart } from "lucide-react";
+import { Bed, Bath, Square, MapPin, PlayCircle, Heart, Trash2 } from "lucide-react";
 import { type Property } from "../types";
-import { formatCurrency } from "../utils";
+import { formatCurrency, formatPropertyId } from "../utils";
 import { motion } from "motion/react";
 import { useFavorites } from "../hooks/useFavorites";
 
-export default function PropertyCard({ property, index = 0 }: { property: Property, index?: number }) {
+export default function PropertyCard({ property, index = 0, isAdmin = false, onDelete }: { property: Property, index?: number, isAdmin?: boolean, onDelete?: (id: number) => void }) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const isFav = isFavorite(property.id);
 
@@ -34,6 +34,11 @@ export default function PropertyCard({ property, index = 0 }: { property: Proper
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute top-4 left-4 flex flex-col gap-2">
+          {isAdmin && (
+            <span className="bg-slate-950/90 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded tracking-wider shadow-sm uppercase w-max border border-white/10">
+              {formatPropertyId(property.id)}
+            </span>
+          )}
           <div className="flex gap-2">
             <span className="bg-white/90 backdrop-blur text-gray-900 text-xs font-semibold px-3 py-1.5 rounded uppercase tracking-wider shadow-sm">
               {property.status === 'venda' ? 'Venda' : 'Locação'}
@@ -76,19 +81,34 @@ export default function PropertyCard({ property, index = 0 }: { property: Proper
           {property.status === 'locacao' && <span className="text-sm text-gray-500 font-normal">/mês</span>}
         </div>
         
-        <div className="flex items-center gap-4 pt-4 border-t border-gray-100 text-sm text-gray-600">
-          <div className="flex items-center gap-1.5" title="Quartos">
-            <Bed className="w-4 h-4 text-gray-400" />
-            <span>{property.bedrooms}</span>
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100 text-sm text-gray-600">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1.5" title="Quartos">
+              <Bed className="w-4 h-4 text-gray-400" />
+              <span>{property.bedrooms}</span>
+            </div>
+            <div className="flex items-center gap-1.5" title="Banheiros">
+              <Bath className="w-4 h-4 text-gray-400" />
+              <span>{property.bathrooms}</span>
+            </div>
+            <div className="flex items-center gap-1.5" title="Área">
+              <Square className="w-4 h-4 text-gray-400" />
+              <span>{property.area} m²</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5" title="Banheiros">
-            <Bath className="w-4 h-4 text-gray-400" />
-            <span>{property.bathrooms}</span>
-          </div>
-          <div className="flex items-center gap-1.5" title="Área">
-            <Square className="w-4 h-4 text-gray-400" />
-            <span>{property.area} m²</span>
-          </div>
+          {onDelete && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onDelete(property.id);
+              }}
+              className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded transition cursor-pointer"
+              title="Excluir Imóvel"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
     </motion.div>

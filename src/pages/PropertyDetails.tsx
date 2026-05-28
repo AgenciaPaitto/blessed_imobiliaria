@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Bed, Bath, Square, MapPin, Share2, MessageCircle, FileDown, Heart } from "lucide-react";
 import type { Property } from "../types";
-import { formatCurrency } from "../utils";
+import { formatCurrency, formatPropertyId } from "../utils";
 import MortgageCalculator from "../components/MortgageCalculator";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -234,7 +234,7 @@ export default function PropertyDetails() {
                   <Heart className={`w-5 h-5 ${isFav ? 'fill-red-500' : ''}`} />
                   {isFav ? 'Salvo nos Favoritos' : 'Salvar Imóvel'}
                 </button>
-                <a href={`https://wa.me/5565999999999?text=${encodeURIComponent(`Olá, tenho interesse no imóvel ${property.title} - Ref: ${property.id}`)}`} target="_blank" rel="noreferrer" className="w-full flex items-center justify-center gap-2 bg-green-50 text-green-700 font-medium py-3 rounded-lg hover:bg-green-100 transition border border-transparent">
+                <a href={`https://wa.me/5565999999999?text=${encodeURIComponent(`Olá, tenho interesse no imóvel ${property.title} - Ref: ${formatPropertyId(property.id)}`)}`} target="_blank" rel="noreferrer" className="w-full flex items-center justify-center gap-2 bg-green-50 text-green-700 font-medium py-3 rounded-lg hover:bg-green-100 transition border border-transparent">
                   <MessageCircle className="w-5 h-5" />
                   Chamar no WhatsApp
                 </a>
@@ -267,7 +267,7 @@ export default function PropertyDetails() {
               <span className="bg-blue-100 text-blue-700 text-sm font-semibold px-3 py-1 rounded uppercase tracking-wider block mb-2 w-max ml-auto">
                 {property.status === 'venda' ? 'Venda' : 'Locação'}
               </span>
-              <div className="text-sm text-gray-500">Ref: #{property.id}</div>
+              <div className="text-sm text-gray-500">Ref: {formatPropertyId(property.id)}</div>
             </div>
           </div>
           

@@ -1,12 +1,23 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Search, Table, LayoutGrid } from "lucide-react";
 import type { Property } from "../../types";
-import { formatCurrency } from "../../utils";
+import { formatCurrency, formatPropertyId } from "../../utils";
+import PropertyCard from "../../components/PropertyCard";
 
 export default function PropertiesConfig() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>(() => {
+    const saved = localStorage.getItem("blessed_properties_view_mode");
+    return (saved === 'table' || saved === 'cards') ? saved : 'table';
+  });
+
+  const handleViewModeChange = (mode: 'table' | 'cards') => {
+    setViewMode(mode);
+    localStorage.setItem("blessed_properties_view_mode", mode);
+  };
 
   const loadProperties = () => {
     setLoading(true);
@@ -54,6 +65,23 @@ export default function PropertiesConfig() {
     });
   };
 
+  const filteredProperties = properties.filter(p => {
+    const query = searchQuery.toLowerCase().trim();
+    if (!query) return true;
+    
+    const formattedId = `ref-${String(p.id).padStart(4, '0')}`;
+    const rawId = String(p.id);
+    
+    return (
+      p.title.toLowerCase().includes(query) ||
+      p.city.toLowerCase().includes(query) ||
+      p.type.toLowerCase().includes(query) ||
+      p.status.toLowerCase().includes(query) ||
+      formattedId.includes(query) ||
+      rawId === query
+    );
+  });
+
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
@@ -67,46 +95,112 @@ export default function PropertiesConfig() {
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-100 text-gray-500 text-sm font-medium">
-                <th className="p-4">ID</th>
-                <th className="p-4">Foto</th>
-                <th className="p-4">Título</th>
-                <th className="p-4">Finalidade</th>
-                <th className="p-4">Preço</th>
-                <th className="p-4 text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={6} className="p-4 text-center">Carregando...</td></tr>
-              ) : properties.map(p => (
-                <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50">
-                  <td className="p-4 text-gray-500">#{p.id}</td>
-                  <td className="p-4">
-                    <img src={p.image || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=100"} alt="Thumb" className="w-12 h-12 rounded object-cover" />
-                  </td>
-                  <td className="p-4 font-medium max-w-[200px] truncate">{p.title}</td>
-                  <td className="p-4">
-                    <span className={`px-2 py-1 rounded text-xs uppercase font-semibold ${p.status === 'venda' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
-                      {p.status}
-                    </span>
-                  </td>
-                  <td className="p-4">{formatCurrency(p.price)}</td>
-                  <td className="p-4 text-right">
-                    <button onClick={() => handleDelete(p.id)} className="text-red-500 hover:bg-red-50 p-2 rounded transition">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Search & Layout toggle bar */}
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-stretch sm:items-center mb-6">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Pesquisar por título, ID, tipo ou finalidade..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-white pl-9 pr-4 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm"
+          />
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="bg-gray-100 p-1 rounded-lg flex items-center border border-gray-200">
+            <button
+              onClick={() => handleViewModeChange('table')}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-semibold transition-all ${
+                viewMode === 'table' 
+                  ? "bg-white text-gray-900 shadow-sm border border-gray-200/10" 
+                  : "text-gray-500 hover:text-gray-900"
+              }`}
+            >
+              <Table className="w-4 h-4" />
+              Tabela
+            </button>
+            <button
+              onClick={() => handleViewModeChange('cards')}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-semibold transition-all ${
+                viewMode === 'cards' 
+                  ? "bg-white text-gray-900 shadow-sm border border-gray-200/10" 
+                  : "text-gray-500 hover:text-gray-900"
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              Cards
+            </button>
+          </div>
         </div>
       </div>
+
+      {viewMode === 'cards' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {loading ? (
+            <div className="col-span-full text-center py-12 text-gray-400 text-sm animate-pulse">Carregando...</div>
+          ) : filteredProperties.length === 0 ? (
+            <div className="col-span-full text-center py-12 text-gray-500 bg-white rounded-xl border border-gray-200 shadow-sm text-sm">
+              Nenhum imóvel encontrado.
+            </div>
+          ) : (
+            filteredProperties.map(p => (
+              <PropertyCard 
+                key={p.id} 
+                property={p} 
+                isAdmin={true} 
+                onDelete={handleDelete}
+              />
+            ))
+          )}
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-100 text-gray-500 text-sm font-medium">
+                  <th className="p-4">ID</th>
+                  <th className="p-4">Foto</th>
+                  <th className="p-4">Título</th>
+                  <th className="p-4">Finalidade</th>
+                  <th className="p-4">Preço</th>
+                  <th className="p-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr><td colSpan={6} className="p-4 text-center text-gray-400 text-sm">Carregando...</td></tr>
+                ) : filteredProperties.length === 0 ? (
+                  <tr><td colSpan={6} className="p-8 text-center text-gray-500 text-sm">Nenhum imóvel encontrado.</td></tr>
+                ) : (
+                  filteredProperties.map(p => (
+                    <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50">
+                      <td className="p-4 text-gray-500 text-sm font-mono">{formatPropertyId(p.id)}</td>
+                      <td className="p-4">
+                        <img src={p.image || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=100"} alt="Thumb" className="w-12 h-12 rounded object-cover" />
+                      </td>
+                      <td className="p-4 font-medium text-sm max-w-[200px] truncate">{p.title}</td>
+                      <td className="p-4">
+                        <span className={`px-2 py-1 rounded text-xs uppercase font-semibold ${p.status === 'venda' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                          {p.status}
+                        </span>
+                      </td>
+                      <td className="p-4 text-sm">{formatCurrency(p.price)}</td>
+                      <td className="p-4 text-right">
+                        <button onClick={() => handleDelete(p.id)} className="text-red-500 hover:bg-red-50 p-2 rounded transition cursor-pointer">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Add Modal */}
       {isModalOpen && (
