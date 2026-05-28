@@ -12,6 +12,34 @@ export default function LeadsConfig() {
     const saved = localStorage.getItem("blessed_crm_columns");
     return saved ? JSON.parse(saved) : ["novo", "em_atendimento", "concluido"];
   });
+  const [draggedOverCol, setDraggedOverCol] = useState<string | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, leadId: number) => {
+    e.dataTransfer.setData("text/plain", leadId.toString());
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDragEnter = (e: React.DragEvent, col: string) => {
+    e.preventDefault();
+    setDraggedOverCol(col);
+  };
+
+  const handleDragLeave = () => {
+    setDraggedOverCol(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetStatus: string) => {
+    e.preventDefault();
+    setDraggedOverCol(null);
+    const leadIdStr = e.dataTransfer.getData("text/plain");
+    if (!leadIdStr) return;
+    const leadId = Number(leadIdStr);
+    if (isNaN(leadId)) return;
+    handleStatusChange(leadId, targetStatus);
+  };
 
   const loadLeads = () => {
     fetch('/api/leads')
@@ -133,8 +161,19 @@ export default function LeadsConfig() {
         <div className="flex gap-6 overflow-x-auto pb-6 -mx-6 px-6 scrollbar-thin select-none">
           {columns.map(col => {
             const columnLeads = leads.filter(l => l.status === col);
+            const isOver = draggedOverCol === col;
             return (
-              <div key={col} className="w-80 flex-shrink-0 flex flex-col bg-slate-900 rounded-2xl border border-slate-800 p-4">
+              <div 
+                key={col} 
+                onDragOver={handleDragOver}
+                onDragEnter={(e) => handleDragEnter(e, col)}
+                onDrop={(e) => handleDrop(e, col)}
+                className={`w-80 flex-shrink-0 flex flex-col bg-slate-900 rounded-2xl border p-4 transition-all duration-200 ${
+                  isOver 
+                    ? "border-blue-500 shadow-[0_0_15px_rgba(197,159,61,0.25)] scale-[1.01]" 
+                    : "border-slate-800"
+                }`}
+              >
                 {/* Column Header */}
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex items-center gap-2">
@@ -148,7 +187,7 @@ export default function LeadsConfig() {
                   {!["novo", "em_atendimento", "concluido"].includes(col) && (
                     <button 
                       onClick={() => handleDeleteList(col)}
-                      className="text-gray-400 hover:text-red-500 transition p-1 rounded hover:bg-gray-800 cursor-pointer"
+                      className="text-gray-400 hover:text-red-500 transition p-1 rounded hover:bg-gray-850 cursor-pointer"
                       title="Excluir lista"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -162,11 +201,16 @@ export default function LeadsConfig() {
                     <div className="text-center py-8 text-gray-400 text-xs animate-pulse">Carregando...</div>
                   ) : columnLeads.length === 0 ? (
                     <div className="border border-dashed border-slate-800 rounded-xl p-6 text-center text-slate-400 text-xs flex flex-col items-center justify-center min-h-[120px] bg-slate-950/20">
-                      Nenhum lead nesta etapa.
+                      Solte o lead aqui
                     </div>
                   ) : (
                     columnLeads.map(lead => (
-                      <div key={lead.id} className="bg-slate-950 p-4 rounded-xl border border-slate-800/80 shadow-sm hover:shadow-md transition flex flex-col gap-3">
+                      <div 
+                        key={lead.id} 
+                        draggable={true}
+                        onDragStart={(e) => handleDragStart(e, lead.id)}
+                        className="bg-slate-950 p-4 rounded-xl border border-slate-800/80 shadow-sm hover:shadow-md hover:border-slate-700/80 transition flex flex-col gap-3 cursor-grab active:cursor-grabbing"
+                      >
                         <div>
                           <div className="flex items-center justify-between mb-1.5">
                             <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
@@ -198,19 +242,6 @@ export default function LeadsConfig() {
                             <Phone className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                             <a href={`tel:${lead.phone}`} className="hover:text-blue-400 hover:underline">{lead.phone}</a>
                           </div>
-                        </div>
-
-                        <div className="mt-1 pt-3 border-t border-slate-800 flex items-center gap-2">
-                          <span className="text-[10px] uppercase font-bold text-slate-400 whitespace-nowrap">Mover para:</span>
-                          <select 
-                            value={lead.status}
-                            onChange={(e) => handleStatusChange(lead.id, e.target.value)}
-                            className="text-xs rounded border border-slate-800 bg-slate-900 p-1.5 font-semibold text-slate-200 outline-none w-full cursor-pointer hover:border-slate-700"
-                          >
-                            {columns.map(c => (
-                              <option key={c} value={c}>{formatColumnName(c)}</option>
-                            ))}
-                          </select>
                         </div>
                       </div>
                     ))
