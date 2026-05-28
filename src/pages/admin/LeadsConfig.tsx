@@ -38,7 +38,17 @@ export default function LeadsConfig() {
   };
   const [columns, setColumns] = useState<string[]>(() => {
     const saved = localStorage.getItem("blessed_crm_columns");
-    return saved ? JSON.parse(saved) : ["novo", "em_atendimento", "concluido"];
+    const parsed = saved ? JSON.parse(saved) : ["novo", "em_atendimento", "concluido"];
+    
+    // Ensure fixed columns are always present
+    const fixed = ["novo", "em_atendimento", "concluido", "qualificado", "desqualificado", "finalizado"];
+    const merged = [...parsed];
+    fixed.forEach(col => {
+      if (!merged.includes(col)) {
+        merged.push(col);
+      }
+    });
+    return merged;
   });
   const [draggedOverCol, setDraggedOverCol] = useState<string | null>(null);
 
@@ -109,6 +119,9 @@ export default function LeadsConfig() {
       case "novo": return "Novo";
       case "em_atendimento": return "Em Atendimento";
       case "concluido": return "Concluído";
+      case "qualificado": return "Qualificado";
+      case "desqualificado": return "Desqualificado";
+      case "finalizado": return "Finalizado";
       default: return col.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     }
   };
@@ -125,6 +138,11 @@ export default function LeadsConfig() {
   };
 
   const handleDeleteList = (colToDelete: string) => {
+    const fixed = ["novo", "em_atendimento", "concluido", "qualificado", "desqualificado", "finalizado"];
+    if (fixed.includes(colToDelete)) {
+      alert("Não é possível excluir esta lista. Esta é uma lista padrão do sistema.");
+      return;
+    }
     if (columns.length <= 3) {
       alert("Não é possível excluir esta lista. O painel deve manter no mínimo 3 listas ativas.");
       return;
@@ -222,8 +240,8 @@ export default function LeadsConfig() {
                     </span>
                   </div>
                   
-                  {/* Delete button (visible when there are more than 3 columns) */}
-                  {columns.length > 3 && (
+                  {/* Delete button (visible when there are more than 3 columns and not a fixed column) */}
+                  {columns.length > 3 && !["novo", "em_atendimento", "concluido", "qualificado", "desqualificado", "finalizado"].includes(col) && (
                     <button 
                       onClick={() => handleDeleteList(col)}
                       className="text-gray-400 hover:text-red-500 transition p-1 rounded hover:bg-gray-850 cursor-pointer"
@@ -283,17 +301,36 @@ export default function LeadsConfig() {
                           </div>
                         </div>
 
-                        {lead.phone && (
-                          <a 
-                            href={getWhatsAppUrl(lead.phone, lead.name, lead.propertyId)} 
-                            target="_blank" 
-                            rel="noreferrer"
-                            className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold py-2 px-4 rounded-lg shadow-sm transition active:translate-y-[1px] select-none cursor-pointer"
+                        <div className="flex gap-2 items-center w-full">
+                          {lead.phone ? (
+                            <a 
+                              href={getWhatsAppUrl(lead.phone, lead.name, lead.propertyId)} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              className="flex-1 flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white text-xs font-semibold py-2 px-3 rounded-lg shadow-sm transition active:translate-y-[1px] select-none cursor-pointer truncate"
+                            >
+                              <MessageCircle className="w-3.5 h-3.5 fill-white flex-shrink-0" />
+                              WhatsApp
+                            </a>
+                          ) : (
+                            <div className="flex-1 text-slate-500 text-[10px] text-center font-medium italic">Sem telefone</div>
+                          )}
+                          
+                          <select
+                            value={["qualificado", "desqualificado", "finalizado"].includes(lead.status) ? lead.status : ""}
+                            onChange={(e) => {
+                              if (e.target.value) {
+                                handleStatusChange(lead.id, e.target.value);
+                              }
+                            }}
+                            className="bg-slate-900 border border-slate-800 text-slate-200 text-xs font-semibold py-2 px-2.5 rounded-lg focus:outline-none focus:border-blue-500 cursor-pointer w-[115px] text-center"
                           >
-                            <MessageCircle className="w-3.5 h-3.5 fill-white" />
-                            WhatsApp
-                          </a>
-                        )}
+                            <option value="" disabled>Finalizar</option>
+                            <option value="qualificado">Qualificado</option>
+                            <option value="desqualificado">Desqualificado</option>
+                            <option value="finalizado">Finalizado</option>
+                          </select>
+                        </div>
                       </div>
                     ))
                   )}
@@ -356,7 +393,10 @@ export default function LeadsConfig() {
                           ${lead.status === 'novo' ? 'bg-blue-50 border-blue-200 text-blue-700' : 
                             lead.status === 'em_atendimento' ? 'bg-yellow-50 border-yellow-200 text-yellow-700' :
                             lead.status === 'concluido' ? 'bg-green-50 border-green-200 text-green-700' :
-                            'bg-purple-50 border-purple-200 text-purple-700'
+                            lead.status === 'qualificado' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' :
+                            lead.status === 'desqualificado' ? 'bg-red-50 border-red-200 text-red-700' :
+                            lead.status === 'finalizado' ? 'bg-purple-50 border-purple-200 text-purple-700' :
+                            'bg-slate-50 border-slate-200 text-slate-750'
                           }`}
                       >
                         {columns.map(c => (
